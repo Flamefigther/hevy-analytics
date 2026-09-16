@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0f1218">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Hevy Analytics">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <title>Hevy Analytics</title>
+  <style>
+    :root{--bg:#0f1218;--panel:#171c25;--panel2:#1d2430;--line:#30394a;--text:#e9eef7;--muted:#98a4b6;--accent:#8ab4ff}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif}
+    .wrap{max-width:760px;margin:0 auto;padding:28px 18px 70px}.hero{margin-bottom:18px}
+    h1{margin:0 0 7px;font-size:28px}.sub{color:var(--muted);line-height:1.5;font-size:13px}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;margin-top:14px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+    .stat{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:11px}
+    .stat span{display:block;color:var(--muted);font-size:10px;margin-bottom:5px}.stat strong{font-size:14px}
+    input[type=file]{width:100%;margin:12px 0;color:var(--muted)}
+    button{border:1px solid var(--line);border-radius:10px;padding:10px 13px;background:var(--panel2);color:var(--text);cursor:pointer}
+    button.primary{background:var(--accent);color:#0d1118;border-color:var(--accent);font-weight:750}
+    button:disabled{opacity:.45;cursor:not-allowed}.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .status{min-height:44px;margin-top:12px;padding:10px;border:1px solid var(--line);border-radius:11px;color:var(--muted);font-size:11px;line-height:1.45}
+    .status.ok{color:#a9dfb7;border-color:rgba(169,223,183,.35)} .status.err{color:#ffb0b0;border-color:rgba(255,176,176,.35)}
+    code{background:#11151c;border:1px solid var(--line);padding:2px 5px;border-radius:5px}
+    .privacy{font-size:11px;color:var(--muted);line-height:1.5}.privacy strong{color:var(--text)}
+    @media(max-width:600px){.grid{grid-template-columns:1fr}h1{font-size:24px}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <h1>Hevy Analytics</h1>
+    <div class="sub">Je dashboard staat online, maar je trainingsdata blijft lokaal op dit apparaat.</div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Data op dit apparaat</h2>
+    <div class="grid">
+      <div class="stat"><span>Status</span><strong id="dataStatus">Geen data</strong></div>
+      <div class="stat"><span>Workouts</span><strong id="workoutCount">0</strong></div>
+    </div>
+    <div class="row">
+      <button id="openDashboard" class="primary" disabled>Open dashboard</button>
+      <button id="clearData" disabled>Lokale data wissen</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Hevy-data importeren</h2>
+    <div class="sub">Kies een Hevy HAR of een clean JSON-bestand met een <code>workouts</code>-lijst.</div>
+    <input id="file" type="file" accept=".json,.har,application/json">
+    <div class="row">
+      <button id="importBtn" class="primary">Importeren</button>
+    </div>
+    <div id="status" class="status">Er wordt niets naar GitHub geüpload. De workoutdata wordt alleen in browseropslag op dit apparaat bewaard.</div>
+  </div>
+
+  <div class="card privacy">
+    <strong>Privacy</strong><br>
+    De openbare GitHub Pages-site bevat geen persoonlijke workoutdata. Alleen de app-code staat op GitHub.
+    Doelen, notities en geïmporteerde workouts blijven lokaal in je browser zolang je de browserdata voor deze site niet wist.
+  </div>
+</div>
+
+<script>
+const KEY="hevy_dashboard_workouts_v18";
+
+function decodeBase64Utf8(s){
+  const bytes=Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+function workoutKey(w){
+  if(w.id) return `id:${w.id}`;
+  if(w.nth_workout!=null) return `nth:${w.nth_workout}`;
+  return `time:${w.start_time}|${w.name||""}`;
+}
+function cleanWorkout(w){
+  const start=typeof w.start_time==="number"?w.start_time:Math.floor(new Date(w.start_time).getTime()/1000);
+  const end=typeof w.end_time==="number"?w.end_time:(w.end_time?Math.floor(new Date(w.end_time).getTime()/1000):start);
+  return {
+    id:w.id||null,nth_workout:w.nth_workout??null,name:w.name||"Workout",description:w.description||"",
+    start_time:start,end_time:end,created_at:w.created_at||null,estimated_volume_kg:w.estimated_volume_kg??null,
+    include_warmup_sets:!!w.include_warmup_sets,
+    exercises:(w.exercises||[]).map(ex=>({
+      title:ex.title||"Unknown exercise",muscle_group:ex.muscle_group||null,
+      other_muscles:Array.isArray(ex.other_muscles)?ex.other_muscles:[],
+      equipment_category:ex.equipment_category||null,exercise_type:ex.exercise_type||null,
+      rest_seconds:ex.rest_seconds??0,superset_id:ex.superset_id??null,
+      sets:(ex.sets||[]).map((s,i)=>({
+        index:s.index??i,indicator:s.indicator||"normal",reps:s.reps??null,weight_kg:s.weight_kg??null,
+        rpe:s.rpe??null,duration_seconds:s.duration_seconds??null,distance_meters:s.distance_meters??null,
+        completed_at:s.completed_at??null,prs:Array.isArray(s.prs)?s.prs:[]
+      }))
+    }))
+  };
+}
+function normalize(items){
+  const cleaned=(items||[]).filter(w=>w&&Array.isArray(w.exercises)&&w.start_time!=null).map(cleanWorkout);
+  cleaned.sort((a,b)=>(a.nth_workout??1e9)-(b.nth_workout??1e9)||a.start_time-b.start_time);
+  let next=1;
+  cleaned.forEach(w=>{if(w.nth_workout==null)w.nth_workout=next;next=Math.max(next,w.nth_workout+1)});
+  const dedup=new Map(); cleaned.forEach(w=>dedup.set(workoutKey(w),w));
+  return [...dedup.values()].sort((a,b)=>a.nth_workout-b.nth_workout||a.start_time-b.start_time);
+}
+async function parseFile(file){
+  const text=await file.text();
+  let obj; try{obj=JSON.parse(text)}catch{throw new Error("Dit bestand is geen geldige JSON/HAR.")}
+  if(Array.isArray(obj)) return normalize(obj);
+  if(Array.isArray(obj.workouts)) return normalize(obj.workouts);
+  if(obj.log&&Array.isArray(obj.log.entries)){
+    const found=[];
+    for(const entry of obj.log.entries){
+      const url=entry?.request?.url||"";
+      if(!url.includes("user_workouts_paged")) continue;
+      const c=entry?.response?.content||{}; let body=c.text; if(!body)continue;
+      try{
+        if(c.encoding==="base64") body=decodeBase64Utf8(body);
+        const payload=JSON.parse(body);
+        if(Array.isArray(payload.workouts)) found.push(...payload.workouts);
+      }catch(_){}
+    }
+    if(!found.length) throw new Error("Geen Hevy workout-responses gevonden in deze HAR.");
+    return normalize(found);
+  }
+  throw new Error("Geen workouts-lijst of bruikbare Hevy HAR gevonden.");
+}
+function loadStored(){
+  try{
+    const raw=localStorage.getItem(KEY);
+    const data=raw?JSON.parse(raw):[];
+    return Array.isArray(data)?data:[];
+  }catch{return[]}
+}
+function render(){
+  const data=loadStored();
+  document.getElementById("dataStatus").textContent=data.length?"Lokaal opgeslagen":"Geen data";
+  document.getElementById("workoutCount").textContent=data.length;
+  document.getElementById("openDashboard").disabled=!data.length;
+  document.getElementById("clearData").disabled=!data.length;
+}
+function setStatus(msg,type=""){const el=document.getElementById("status");el.className=`status ${type}`.trim();el.textContent=msg}
+document.getElementById("importBtn").addEventListener("click",async()=>{
+  const file=document.getElementById("file").files?.[0];
+  if(!file){setStatus("Kies eerst een HAR- of JSON-bestand.","err");return}
+  setStatus("Bestand wordt gecontroleerd…");
+  try{
+    const incoming=await parseFile(file);
+    const existing=loadStored();
+    const map=new Map(); [...existing,...incoming].map(cleanWorkout).forEach(w=>map.set(workoutKey(w),w));
+    const merged=[...map.values()].sort((a,b)=>a.nth_workout-b.nth_workout||a.start_time-b.start_time);
+    localStorage.setItem(KEY,JSON.stringify(merged));
+    setStatus(`${merged.length} workouts lokaal opgeslagen. Je kunt het dashboard nu openen.`,"ok");
+    render();
+  }catch(err){setStatus(err?.message||String(err),"err")}
+});
+document.getElementById("openDashboard").addEventListener("click",()=>location.href="./dashboard.html");
+document.getElementById("clearData").addEventListener("click",()=>{
+  if(confirm("Lokale workoutdata van dit apparaat wissen?")){
+    localStorage.removeItem(KEY);render();setStatus("Lokale workoutdata gewist.");
+  }
+});
+render();
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));
+}
+</script>
+</body>
+</html>
