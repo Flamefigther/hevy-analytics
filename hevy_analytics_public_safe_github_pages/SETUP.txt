@@ -1,0 +1,20 @@
+HEVY ANALYTICS — PRIVACY-VEILIGE GITHUB PAGES VERSIE
+
+Deze repository mag openbaar zijn:
+- Er staat GEEN persoonlijke workoutdata in de repository.
+- Alleen de webapp-code staat op GitHub Pages.
+- Workouts, doelen en notities blijven lokaal in de browser op elk apparaat.
+
+Eerste keer:
+1. Maak op GitHub een PUBLIC repository, bijvoorbeeld hevy-analytics.
+2. Upload alle bestanden uit deze ZIP naar de root.
+3. Settings > Pages > Deploy from a branch > main > /(root).
+4. Open de Pages-URL.
+5. Importeer één keer je clean JSON of Hevy HAR op het apparaat dat je gebruikt.
+6. Open daarna het dashboard.
+7. Op Android: Chrome-menu > Install app / Toevoegen aan startscherm.
+
+Let op:
+- Telefoon en computer hebben elk hun eigen lokale browserdata.
+- Exporteer af en toe een clean JSON als backup.
+- Als de sitecode later wordt bijgewerkt op dezelfde URL, blijft je lokale data normaal behouden.
