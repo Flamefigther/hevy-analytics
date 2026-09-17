@@ -12,163 +12,110 @@
   <link rel="apple-touch-icon" href="./icon-180.png">
   <title>Hevy Analytics</title>
   <style>
-    :root{--bg:#0f1218;--panel:#171c25;--panel2:#1d2430;--line:#30394a;--text:#e9eef7;--muted:#98a4b6;--accent:#8ab4ff}
-    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif}
-    .wrap{max-width:760px;margin:0 auto;padding:28px 18px 70px}.hero{margin-bottom:18px}
-    h1{margin:0 0 7px;font-size:28px}.sub{color:var(--muted);line-height:1.5;font-size:13px}
+    :root{--bg:#0f1218;--panel:#171c25;--panel2:#1d2430;--line:#30394a;--text:#e9eef7;--muted:#98a4b6;--accent:#8ab4ff;--ok:#a9dfb7;--warn:#ffd58a;--err:#ffb0b0}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    .wrap{max-width:900px;margin:0 auto;padding:28px 18px 70px}.hero{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:18px}
+    h1{margin:0 0 7px;font-size:28px} h2{margin:0 0 8px;font-size:19px}.sub,.muted{color:var(--muted);line-height:1.5;font-size:12px}
+    .version{color:var(--muted);font-size:10px;border:1px solid var(--line);border-radius:999px;padding:5px 8px;white-space:nowrap}
     .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;margin-top:14px}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-    .stat{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:11px}
-    .stat span{display:block;color:var(--muted);font-size:10px;margin-bottom:5px}.stat strong{font-size:14px}
-    input[type=file]{width:100%;margin:12px 0;color:var(--muted)}
-    button{border:1px solid var(--line);border-radius:10px;padding:10px 13px;background:var(--panel2);color:var(--text);cursor:pointer}
-    button.primary{background:var(--accent);color:#0d1118;border-color:var(--accent);font-weight:750}
-    button:disabled{opacity:.45;cursor:not-allowed}.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}.stat{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:11px;min-width:0}
+    .stat span{display:block;color:var(--muted);font-size:9px;margin-bottom:5px}.stat strong{font-size:14px;word-break:break-word}
+    input[type=file]{width:100%;margin:11px 0;color:var(--muted)}button{border:1px solid var(--line);border-radius:10px;padding:10px 13px;background:var(--panel2);color:var(--text);cursor:pointer}
+    button.primary{background:var(--accent);color:#0d1118;border-color:var(--accent);font-weight:750}button.danger{color:var(--err)}button:disabled{opacity:.42;cursor:not-allowed}.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
     .status{min-height:44px;margin-top:12px;padding:10px;border:1px solid var(--line);border-radius:11px;color:var(--muted);font-size:11px;line-height:1.45}
-    .status.ok{color:#a9dfb7;border-color:rgba(169,223,183,.35)} .status.err{color:#ffb0b0;border-color:rgba(255,176,176,.35)}
-    code{background:#11151c;border:1px solid var(--line);padding:2px 5px;border-radius:5px}
-    .privacy{font-size:11px;color:var(--muted);line-height:1.5}.privacy strong{color:var(--text)}
-    @media(max-width:600px){.grid{grid-template-columns:1fr}h1{font-size:24px}}
+    .status.ok{color:var(--ok);border-color:rgba(169,223,183,.35);background:rgba(169,223,183,.04)}.status.warn{color:var(--warn);border-color:rgba(255,213,138,.35);background:rgba(255,213,138,.04)}.status.err{color:var(--err);border-color:rgba(255,176,176,.35);background:rgba(255,176,176,.04)}
+    .preview{display:none;margin-top:12px;border:1px solid var(--line);border-radius:13px;overflow:hidden}.preview.show{display:block}.preview-head{padding:10px 12px;background:var(--panel2);display:flex;justify-content:space-between;gap:10px;align-items:center}.preview-body{padding:12px}
+    .preview-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.preview-cell{background:#141922;border:1px solid var(--line);border-radius:10px;padding:9px}.preview-cell span{display:block;color:var(--muted);font-size:9px;margin-bottom:4px}.preview-cell strong{font-size:12px}
+    .checklist{display:grid;gap:6px;margin-top:10px}.check{font-size:10px;color:var(--muted);padding:7px 9px;border-radius:9px;background:#141922;border:1px solid var(--line)}.check.ok{color:var(--ok)}.check.warn{color:var(--warn)}.check.err{color:var(--err)}
+    .section-split{display:grid;grid-template-columns:1fr 1fr;gap:14px}.privacy{font-size:11px;color:var(--muted);line-height:1.5}.privacy strong{color:var(--text)}code{background:#11151c;border:1px solid var(--line);padding:2px 5px;border-radius:5px}
+    @media(max-width:760px){.grid{grid-template-columns:1fr 1fr}.section-split{grid-template-columns:1fr}.preview-grid{grid-template-columns:1fr 1fr}}@media(max-width:520px){.grid,.preview-grid{grid-template-columns:1fr}.hero{display:block}.version{display:inline-block;margin-top:8px}h1{font-size:24px}}
   </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="hero">
-    <h1>Hevy Analytics</h1>
-    <div class="sub">Je dashboard staat online, maar je trainingsdata blijft lokaal op dit apparaat.</div>
-  </div>
+  <div class="hero"><div><h1>Hevy Analytics</h1><div class="sub">Je dashboard staat online, maar je trainingsdata blijft lokaal op dit apparaat.</div></div><div class="version">data schema v1</div></div>
 
   <div class="card">
-    <h2 style="margin-top:0">Data op dit apparaat</h2>
+    <h2>Data op dit apparaat</h2>
     <div class="grid">
       <div class="stat"><span>Status</span><strong id="dataStatus">Geen data</strong></div>
       <div class="stat"><span>Workouts</span><strong id="workoutCount">0</strong></div>
+      <div class="stat"><span>Bereik</span><strong id="workoutRange">—</strong></div>
+      <div class="stat"><span>Laatste import</span><strong id="lastImport">—</strong></div>
     </div>
-    <div class="row">
-      <button id="openDashboard" class="primary" disabled>Open dashboard</button>
-      <button id="clearData" disabled>Lokale data wissen</button>
-    </div>
+    <div class="row"><button id="openDashboard" class="primary" disabled>Open dashboard</button><button id="downloadClean" disabled>Download clean JSON</button><button id="clearData" class="danger" disabled>Lokale data wissen</button></div>
   </div>
 
   <div class="card">
-    <h2 style="margin-top:0">Hevy-data importeren</h2>
-    <div class="sub">Kies een Hevy HAR of een clean JSON-bestand met een <code>workouts</code>-lijst.</div>
+    <h2>Hevy-data importeren</h2>
+    <div class="sub">Kies een Hevy HAR of een clean JSON-bestand. We controleren het bestand eerst; er wordt nog niets opgeslagen.</div>
     <input id="file" type="file" accept=".json,.har,application/json">
-    <div class="row">
-      <button id="importBtn" class="primary">Importeren</button>
-    </div>
-    <div id="status" class="status">Er wordt niets naar GitHub geüpload. De workoutdata wordt alleen in browseropslag op dit apparaat bewaard.</div>
+    <div id="preview" class="preview"><div class="preview-head"><strong>Import-preview</strong><span id="previewBadge" class="muted">—</span></div><div class="preview-body">
+      <div class="preview-grid">
+        <div class="preview-cell"><span>Gevonden</span><strong id="pFound">—</strong></div><div class="preview-cell"><span>Nieuw na samenvoegen</span><strong id="pNew">—</strong></div><div class="preview-cell"><span>Na import totaal</span><strong id="pMerged">—</strong></div>
+        <div class="preview-cell"><span>Workoutnummers</span><strong id="pRange">—</strong></div><div class="preview-cell"><span>HAR offsets</span><strong id="pOffsets">—</strong></div><div class="preview-cell"><span>Ontbrekende nummers</span><strong id="pMissing">—</strong></div>
+      </div><div id="checks" class="checklist"></div>
+    </div></div>
+    <div class="row"><button id="importBtn" class="primary" disabled>Importeren & samenvoegen</button></div>
+    <div id="status" class="status">Selecteer eerst een bestand. Workoutdata wordt alleen lokaal in deze browser bewaard.</div>
   </div>
 
-  <div class="card privacy">
-    <strong>Privacy</strong><br>
-    De openbare GitHub Pages-site bevat geen persoonlijke workoutdata. Alleen de app-code staat op GitHub.
-    Doelen, notities en geïmporteerde workouts blijven lokaal in je browser zolang je de browserdata voor deze site niet wist.
+  <div class="section-split">
+    <div class="card"><h2>Backup</h2><div class="sub">Exporteer workouts, doelen, notities en dataversie in één backupbestand.</div><div class="row"><button id="downloadBackup" disabled>Volledige backup downloaden</button></div></div>
+    <div class="card"><h2>Herstellen</h2><div class="sub">Herstel een eerder gemaakte Hevy Analytics-backup op dit apparaat.</div><input id="backupFile" type="file" accept=".json,application/json"><div class="row"><button id="restoreBackup">Backup herstellen</button></div><div id="restoreStatus" class="status">Nog geen backup geselecteerd.</div></div>
   </div>
+
+  <div class="card privacy"><strong>Privacy & updates</strong><br>De openbare GitHub Pages-site bevat geen persoonlijke workoutdata. Updates van de website veranderen de code, niet je lokale dataset. De app bewaart een apart dataversienummer zodat toekomstige schemawijzigingen veilig gemigreerd kunnen worden.</div>
 </div>
 
 <script>
 const KEY="hevy_dashboard_workouts_v18";
+const META_KEY="hevy_dashboard_data_meta_v1";
+const GOAL_KEY="hevy_dashboard_goals_v1";
+const NOTE_KEY="hevy_dashboard_annotations_v1";
+const DATA_SCHEMA_VERSION=1;
+let pendingImport=null;
 
-function decodeBase64Utf8(s){
-  const bytes=Uint8Array.from(atob(s),c=>c.charCodeAt(0));
-  return new TextDecoder().decode(bytes);
-}
-function workoutKey(w){
-  if(w.id) return `id:${w.id}`;
-  if(w.nth_workout!=null) return `nth:${w.nth_workout}`;
-  return `time:${w.start_time}|${w.name||""}`;
-}
+function decodeBase64Utf8(s){const bytes=Uint8Array.from(atob(s),c=>c.charCodeAt(0));return new TextDecoder().decode(bytes)}
+function workoutKey(w){if(w.id)return `id:${w.id}`;if(w.nth_workout!=null)return `nth:${w.nth_workout}`;return `time:${w.start_time}|${w.name||""}`}
 function cleanWorkout(w){
-  const start=typeof w.start_time==="number"?w.start_time:Math.floor(new Date(w.start_time).getTime()/1000);
-  const end=typeof w.end_time==="number"?w.end_time:(w.end_time?Math.floor(new Date(w.end_time).getTime()/1000):start);
-  return {
-    id:w.id||null,nth_workout:w.nth_workout??null,name:w.name||"Workout",description:w.description||"",
-    start_time:start,end_time:end,created_at:w.created_at||null,estimated_volume_kg:w.estimated_volume_kg??null,
-    include_warmup_sets:!!w.include_warmup_sets,
-    exercises:(w.exercises||[]).map(ex=>({
-      title:ex.title||"Unknown exercise",muscle_group:ex.muscle_group||null,
-      other_muscles:Array.isArray(ex.other_muscles)?ex.other_muscles:[],
-      equipment_category:ex.equipment_category||null,exercise_type:ex.exercise_type||null,
-      rest_seconds:ex.rest_seconds??0,superset_id:ex.superset_id??null,
-      sets:(ex.sets||[]).map((s,i)=>({
-        index:s.index??i,indicator:s.indicator||"normal",reps:s.reps??null,weight_kg:s.weight_kg??null,
-        rpe:s.rpe??null,duration_seconds:s.duration_seconds??null,distance_meters:s.distance_meters??null,
-        completed_at:s.completed_at??null,prs:Array.isArray(s.prs)?s.prs:[]
-      }))
-    }))
-  };
+  const start=typeof w.start_time==="number"?w.start_time:Math.floor(new Date(w.start_time).getTime()/1000);const end=typeof w.end_time==="number"?w.end_time:(w.end_time?Math.floor(new Date(w.end_time).getTime()/1000):start);
+  return {id:w.id||null,nth_workout:w.nth_workout??null,name:w.name||"Workout",description:w.description||"",start_time:start,end_time:end,created_at:w.created_at||null,estimated_volume_kg:w.estimated_volume_kg??null,include_warmup_sets:!!w.include_warmup_sets,exercises:(w.exercises||[]).map(ex=>({title:ex.title||"Unknown exercise",muscle_group:ex.muscle_group||null,other_muscles:Array.isArray(ex.other_muscles)?ex.other_muscles:[],equipment_category:ex.equipment_category||null,exercise_type:ex.exercise_type||null,rest_seconds:ex.rest_seconds??0,superset_id:ex.superset_id??null,sets:(ex.sets||[]).map((s,i)=>({index:s.index??i,indicator:s.indicator||"normal",reps:s.reps??null,weight_kg:s.weight_kg??null,rpe:s.rpe??null,duration_seconds:s.duration_seconds??null,distance_meters:s.distance_meters??null,completed_at:s.completed_at??null,prs:Array.isArray(s.prs)?s.prs:[]}))}))}
 }
-function normalize(items){
-  const cleaned=(items||[]).filter(w=>w&&Array.isArray(w.exercises)&&w.start_time!=null).map(cleanWorkout);
-  cleaned.sort((a,b)=>(a.nth_workout??1e9)-(b.nth_workout??1e9)||a.start_time-b.start_time);
-  let next=1;
-  cleaned.forEach(w=>{if(w.nth_workout==null)w.nth_workout=next;next=Math.max(next,w.nth_workout+1)});
-  const dedup=new Map(); cleaned.forEach(w=>dedup.set(workoutKey(w),w));
-  return [...dedup.values()].sort((a,b)=>a.nth_workout-b.nth_workout||a.start_time-b.start_time);
-}
-async function parseFile(file){
-  const text=await file.text();
-  let obj; try{obj=JSON.parse(text)}catch{throw new Error("Dit bestand is geen geldige JSON/HAR.")}
-  if(Array.isArray(obj)) return normalize(obj);
-  if(Array.isArray(obj.workouts)) return normalize(obj.workouts);
-  if(obj.log&&Array.isArray(obj.log.entries)){
-    const found=[];
-    for(const entry of obj.log.entries){
-      const url=entry?.request?.url||"";
-      if(!url.includes("user_workouts_paged")) continue;
-      const c=entry?.response?.content||{}; let body=c.text; if(!body)continue;
-      try{
-        if(c.encoding==="base64") body=decodeBase64Utf8(body);
-        const payload=JSON.parse(body);
-        if(Array.isArray(payload.workouts)) found.push(...payload.workouts);
-      }catch(_){}
-    }
-    if(!found.length) throw new Error("Geen Hevy workout-responses gevonden in deze HAR.");
-    return normalize(found);
-  }
-  throw new Error("Geen workouts-lijst of bruikbare Hevy HAR gevonden.");
-}
-function loadStored(){
-  try{
-    const raw=localStorage.getItem(KEY);
-    const data=raw?JSON.parse(raw):[];
-    return Array.isArray(data)?data:[];
-  }catch{return[]}
-}
-function render(){
-  const data=loadStored();
-  document.getElementById("dataStatus").textContent=data.length?"Lokaal opgeslagen":"Geen data";
-  document.getElementById("workoutCount").textContent=data.length;
-  document.getElementById("openDashboard").disabled=!data.length;
-  document.getElementById("clearData").disabled=!data.length;
-}
+function normalize(items){const cleaned=(items||[]).filter(w=>w&&Array.isArray(w.exercises)&&w.start_time!=null).map(cleanWorkout);cleaned.sort((a,b)=>(a.nth_workout??1e9)-(b.nth_workout??1e9)||a.start_time-b.start_time);let next=1;cleaned.forEach(w=>{if(w.nth_workout==null)w.nth_workout=next;next=Math.max(next,w.nth_workout+1)});const dedup=new Map();cleaned.forEach(w=>dedup.set(workoutKey(w),w));return [...dedup.values()].sort((a,b)=>a.nth_workout-b.nth_workout||a.start_time-b.start_time)}
+function mergeWorkouts(a,b){const map=new Map();[...normalize(a),...normalize(b)].forEach(w=>map.set(workoutKey(w),w));return [...map.values()].sort((x,y)=>x.nth_workout-y.nth_workout||x.start_time-y.start_time)}
+function getMissingNth(workouts){const nums=workouts.map(w=>Number(w.nth_workout)).filter(Number.isFinite).sort((a,b)=>a-b);if(!nums.length)return[];const set=new Set(nums),missing=[];for(let i=nums[0];i<=nums.at(-1);i++)if(!set.has(i))missing.push(i);return missing}
+function migrateLocalData(){let meta={};try{meta=JSON.parse(localStorage.getItem(META_KEY)||"{}")}catch(_){}const from=Number(meta.schemaVersion||1);if(from>DATA_SCHEMA_VERSION)throw new Error("Deze lokale data is gemaakt door een nieuwere app-versie.");localStorage.setItem(META_KEY,JSON.stringify({...meta,schemaVersion:DATA_SCHEMA_VERSION}))}
+function loadStored(){migrateLocalData();try{const raw=localStorage.getItem(KEY);const data=raw?JSON.parse(raw):[];return Array.isArray(data)?normalize(data):[]}catch{return[]}}
+function loadMeta(){try{return JSON.parse(localStorage.getItem(META_KEY)||"{}")}catch{return {}}}
+function saveData(workouts,source){const cleaned=normalize(workouts);localStorage.setItem(KEY,JSON.stringify(cleaned));localStorage.setItem(META_KEY,JSON.stringify({...loadMeta(),schemaVersion:DATA_SCHEMA_VERSION,lastImport:new Date().toISOString(),source}))}
+function formatDateTime(s){if(!s)return"—";try{return new Intl.DateTimeFormat("nl-NL",{dateStyle:"short",timeStyle:"short"}).format(new Date(s))}catch{return"—"}}
+function nthRange(data){const nums=data.map(w=>Number(w.nth_workout)).filter(Number.isFinite);return nums.length?`#${Math.min(...nums)}–#${Math.max(...nums)}`:"—"}
+function render(){const data=loadStored(),meta=loadMeta();document.getElementById("dataStatus").textContent=data.length?"Lokaal opgeslagen":"Geen data";document.getElementById("workoutCount").textContent=data.length;document.getElementById("workoutRange").textContent=nthRange(data);document.getElementById("lastImport").textContent=formatDateTime(meta.lastImport);["openDashboard","clearData","downloadClean","downloadBackup"].forEach(id=>document.getElementById(id).disabled=!data.length)}
 function setStatus(msg,type=""){const el=document.getElementById("status");el.className=`status ${type}`.trim();el.textContent=msg}
-document.getElementById("importBtn").addEventListener("click",async()=>{
-  const file=document.getElementById("file").files?.[0];
-  if(!file){setStatus("Kies eerst een HAR- of JSON-bestand.","err");return}
-  setStatus("Bestand wordt gecontroleerd…");
-  try{
-    const incoming=await parseFile(file);
-    const existing=loadStored();
-    const map=new Map(); [...existing,...incoming].map(cleanWorkout).forEach(w=>map.set(workoutKey(w),w));
-    const merged=[...map.values()].sort((a,b)=>a.nth_workout-b.nth_workout||a.start_time-b.start_time);
-    localStorage.setItem(KEY,JSON.stringify(merged));
-    setStatus(`${merged.length} workouts lokaal opgeslagen. Je kunt het dashboard nu openen.`,"ok");
-    render();
-  }catch(err){setStatus(err?.message||String(err),"err")}
-});
-document.getElementById("openDashboard").addEventListener("click",()=>location.href="./dashboard.html");
-document.getElementById("clearData").addEventListener("click",()=>{
-  if(confirm("Lokale workoutdata van dit apparaat wissen?")){
-    localStorage.removeItem(KEY);render();setStatus("Lokale workoutdata gewist.");
-  }
-});
-render();
-
-if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));
+function setRestoreStatus(msg,type=""){const el=document.getElementById("restoreStatus");el.className=`status ${type}`.trim();el.textContent=msg}
+function downloadJson(filename,obj){const blob=new Blob([JSON.stringify(obj,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+async function parseFile(file){
+  const text=await file.text();let obj;try{obj=JSON.parse(text)}catch{throw new Error("Dit bestand is geen geldige JSON/HAR.")}
+  if(Array.isArray(obj))return{workouts:normalize(obj),kind:"JSON",offsets:[],hasOffsetZero:null};if(Array.isArray(obj.workouts))return{workouts:normalize(obj.workouts),kind:"JSON",offsets:[],hasOffsetZero:null};
+  if(obj.log&&Array.isArray(obj.log.entries)){const found=[],offsets=[];for(const entry of obj.log.entries){const url=entry?.request?.url||"";if(!url.includes("user_workouts_paged"))continue;const match=url.match(/[?&]offset=(\d+)/);if(match)offsets.push(Number(match[1]));const c=entry?.response?.content||{};let body=c.text;if(!body)continue;try{if(c.encoding==="base64")body=decodeBase64Utf8(body);const payload=JSON.parse(body);if(Array.isArray(payload.workouts))found.push(...payload.workouts)}catch(_){}}if(!found.length)throw new Error("Geen Hevy workout-responses gevonden in deze HAR.");const uniqOffsets=[...new Set(offsets)].sort((a,b)=>a-b);return{workouts:normalize(found),kind:"HAR",offsets:uniqOffsets,hasOffsetZero:uniqOffsets.includes(0)}}
+  throw new Error("Geen workouts-lijst of bruikbare Hevy HAR gevonden.")
 }
+function renderPreview(parsed,fileName){
+  const existing=loadStored(),incoming=parsed.workouts,merged=mergeWorkouts(existing,incoming);const incomingKeys=new Set(existing.map(workoutKey));const newCount=incoming.filter(w=>!incomingKeys.has(workoutKey(w))).length;const missing=getMissingNth(incoming);const critical=parsed.kind==="HAR"&&parsed.hasOffsetZero===false;const warnings=[];
+  if(parsed.kind==="HAR"){warnings.push({type:parsed.hasOffsetZero?"ok":"err",text:parsed.hasOffsetZero?"HAR bevat offset=0: de nieuwste pagina is meegenomen.":"HAR mist offset=0: waarschijnlijk ontbreken de nieuwste workouts. Import is geblokkeerd."});if(parsed.offsets.length>1){const gaps=[];for(let i=1;i<parsed.offsets.length;i++){const diff=parsed.offsets[i]-parsed.offsets[i-1];if(diff>5)gaps.push(`${parsed.offsets[i-1]}→${parsed.offsets[i]}`)}warnings.push({type:gaps.length?"warn":"ok",text:gaps.length?`Ongewone sprongen in HAR-offsets: ${gaps.join(", ")}.`:"HAR-paginering lijkt aaneengesloten."})}}else warnings.push({type:"ok",text:"JSON-import: geen HAR-offsetcontrole nodig."});
+  warnings.push({type:missing.length?"warn":"ok",text:missing.length?`Ontbrekende workoutnummers binnen het gevonden bereik: ${missing.slice(0,20).join(", ")}${missing.length>20?"…":""}`:"Geen gaten in de gevonden workoutnummers."});
+  document.getElementById("preview").classList.add("show");document.getElementById("previewBadge").textContent=`${parsed.kind} · ${fileName}`;document.getElementById("pFound").textContent=incoming.length;document.getElementById("pNew").textContent=newCount;document.getElementById("pMerged").textContent=merged.length;document.getElementById("pRange").textContent=nthRange(incoming);document.getElementById("pOffsets").textContent=parsed.offsets.length?parsed.offsets.join(", "):"n.v.t.";document.getElementById("pMissing").textContent=missing.length?missing.join(", "):"geen";document.getElementById("checks").innerHTML=warnings.map(x=>`<div class="check ${x.type}">${x.text}</div>`).join("");pendingImport={...parsed,merged,critical,fileName};document.getElementById("importBtn").disabled=critical||!incoming.length;setStatus(critical?"Deze HAR lijkt onvolledig. Maak een nieuwe HAR waarin ook offset=0 staat.":`${incoming.length} workouts gecontroleerd. Nog niets is opgeslagen.`,critical?"err":"ok")
+}
+document.getElementById("file").addEventListener("change",async()=>{pendingImport=null;document.getElementById("importBtn").disabled=true;const file=document.getElementById("file").files?.[0];if(!file){document.getElementById("preview").classList.remove("show");setStatus("Selecteer eerst een bestand.");return}setStatus("Bestand wordt gecontroleerd…");try{renderPreview(await parseFile(file),file.name)}catch(err){document.getElementById("preview").classList.remove("show");setStatus(err?.message||String(err),"err")}})
+document.getElementById("importBtn").addEventListener("click",()=>{if(!pendingImport||pendingImport.critical)return;try{saveData(pendingImport.merged,`${pendingImport.kind}:${pendingImport.fileName}`);setStatus(`${pendingImport.merged.length} workouts lokaal opgeslagen. Dashboarddata is bijgewerkt.`,"ok");render();renderPreview(pendingImport,pendingImport.fileName)}catch(err){setStatus(`Opslaan mislukt: ${err?.message||err}. Maak eventueel eerst een backup of clean JSON.`,"err")}})
+document.getElementById("openDashboard").addEventListener("click",()=>location.href="./dashboard.html")
+document.getElementById("downloadClean").addEventListener("click",()=>downloadJson(`hevy_workouts_${new Date().toISOString().slice(0,10)}.json`,{workouts:loadStored()}))
+document.getElementById("downloadBackup").addEventListener("click",()=>{const backup={format:"hevy-analytics-backup",backupVersion:1,dataSchemaVersion:DATA_SCHEMA_VERSION,exportedAt:new Date().toISOString(),workouts:loadStored(),goals:JSON.parse(localStorage.getItem(GOAL_KEY)||"[]"),annotations:JSON.parse(localStorage.getItem(NOTE_KEY)||"[]"),meta:loadMeta()};downloadJson(`hevy_analytics_backup_${new Date().toISOString().slice(0,10)}.json`,backup)})
+document.getElementById("restoreBackup").addEventListener("click",async()=>{const file=document.getElementById("backupFile").files?.[0];if(!file){setRestoreStatus("Kies eerst een backupbestand.","err");return}try{const obj=JSON.parse(await file.text());if(obj?.format!=="hevy-analytics-backup"||!Array.isArray(obj.workouts))throw new Error("Dit is geen geldige Hevy Analytics-backup.");if(Number(obj.dataSchemaVersion||1)>DATA_SCHEMA_VERSION)throw new Error("Deze backup komt uit een nieuwere dataversie.");saveData(obj.workouts,"backup restore");if(Array.isArray(obj.goals))localStorage.setItem(GOAL_KEY,JSON.stringify(obj.goals));if(Array.isArray(obj.annotations))localStorage.setItem(NOTE_KEY,JSON.stringify(obj.annotations));setRestoreStatus(`${obj.workouts.length} workouts en bijbehorende lokale instellingen hersteld.`,"ok");render()}catch(err){setRestoreStatus(err?.message||String(err),"err")}})
+document.getElementById("clearData").addEventListener("click",()=>{if(confirm("Alle lokale workoutdata op dit apparaat wissen? Doelen en notities blijven staan.")){localStorage.removeItem(KEY);localStorage.setItem(META_KEY,JSON.stringify({schemaVersion:DATA_SCHEMA_VERSION}));pendingImport=null;document.getElementById("preview").classList.remove("show");render();setStatus("Lokale workoutdata gewist.")}})
+render();
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}))}
 </script>
 </body>
 </html>
